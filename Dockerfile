@@ -1,5 +1,5 @@
-# -------- BUILD STAGE --------
-FROM node:20-alpine AS builder
+# Stage 1: Build
+FROM node:20 AS builder
 
 WORKDIR /app
 
@@ -9,13 +9,16 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# -------- PRODUCTION STAGE --------
+# Stage 2: Serve
 FROM node:20-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app .
+# Install serve to host React app
+RUN npm install -g serve
+
+COPY --from=builder /app/build ./build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["serve", "-s", "build", "-l", "3000"]
