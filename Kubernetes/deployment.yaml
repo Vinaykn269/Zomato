@@ -4,18 +4,46 @@ metadata:
   name: zomato
   labels:
     app: zomato
+
 spec:
   replicas: 2
+
   selector:
     matchLabels:
       app: zomato
+
   template:
     metadata:
       labels:
         app: zomato
+
     spec:
       containers:
-      - name: zomato
-        image: vinaykn269/zomato:latest
-        ports:
-        - containerPort: 80
+        - name: zomato
+          image: vinaykn269/zomato:latest
+
+          # 🔥 IMPORTANT: always pull latest image
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+
+          # ✅ Readiness Probe (wait until app is ready)
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          # ✅ Liveness Probe (restart if app dies)
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
