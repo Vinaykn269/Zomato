@@ -1,24 +1,13 @@
-# Stage 1: Build
+# Build stage
 FROM node:20 AS builder
-
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
-
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve
-FROM node:20-alpine
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
 
-WORKDIR /app
-
-# Install serve to host React app
-RUN npm install -g serve
-
-COPY --from=builder /app/build ./build
-
-EXPOSE 80
-
-CMD ["serve", "-s", "build", "-l", "3000"]
+CMD ["nginx", "-g", "daemon off;"]
